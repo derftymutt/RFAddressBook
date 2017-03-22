@@ -8,202 +8,216 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using WikiDataProvider;
+using WikiDataProvider.Data.Extensions;
 
 namespace RFAddressBook.Services
 {
     public class AddressService : BaseService, IAddressService
     {
 
+        public Address MapAddress(IDataReader reader)
+        {
+            Address currentAddress = new Address();
+            int startingIndex = 0;
+
+            currentAddress.Id = reader.GetSafeGuid(startingIndex++);
+            currentAddress.UserId = reader.GetSafeInt32(startingIndex++);
+            currentAddress.Name = reader.GetSafeString(startingIndex++);
+            currentAddress.Street = reader.GetSafeString(startingIndex++);
+            currentAddress.Street2 = reader.GetSafeString(startingIndex++);
+            currentAddress.City = reader.GetSafeString(startingIndex++);
+            currentAddress.State = reader.GetSafeString(startingIndex++);
+            currentAddress.PostalCode = reader.GetSafeString(startingIndex++);
+            currentAddress.CreationDateTime = reader.GetSafeDateTime(startingIndex++);
+
+            return currentAddress;
+        }
+
         public Guid Create(AddressCreateRequest model)
         {
-            Guid createId;
+            Guid createId = Guid.Empty;
 
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                using (SqlCommand cmd = new SqlCommand())
+            DataProvider.ExecuteNonQuery(GetConnection, "dbo.Addresses_Insert",
+                inputParamMapper: delegate (SqlParameterCollection parameters)
                 {
-                    cmd.CommandText = "dbo.Addresses_Insert";
-                    cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@UserId", model.UserId);
-                    cmd.Parameters.AddWithValue("@Name", model.Name);
-                    cmd.Parameters.AddWithValue("@Street", model.Street);
-                    cmd.Parameters.AddWithValue("@Street2", model.Street2);
-                    cmd.Parameters.AddWithValue("@City", model.City);
-                    cmd.Parameters.AddWithValue("@State", model.State);
-                    cmd.Parameters.AddWithValue("@PostalCode", model.PostalCode);
+                    parameters.AddWithValue("@UserId", model.UserId);
+                    parameters.AddWithValue("@Name", model.Name);
 
-                    SqlParameter outputIdParam = new SqlParameter("@Id", SqlDbType.UniqueIdentifier)
+                    if (model.Street == null)
                     {
-                        Direction = ParameterDirection.Output
-                    };
+                        parameters.AddWithValue("@Street", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@Street", model.Street);
+                    }
 
-                    cmd.Parameters.Add(outputIdParam);
+                    if (model.Street2 == null)
+                    {
+                        parameters.AddWithValue("@Street2", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@Street2", model.Street2);
+                    }
 
-                    cmd.Connection = conn;
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
+                    if (model.City == null)
+                    {
+                        parameters.AddWithValue("@City", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@City", model.City);
+                    }
 
-                    createId = Guid.Parse(outputIdParam.Value.ToString());
-                }
-            }
+                    if (model.State == null)
+                    {
+                        parameters.AddWithValue("@State", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@State", model.State);
+                    }
+
+                    if (model.PostalCode == null)
+                    {
+                        parameters.AddWithValue("@PostalCode", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@PostalCode", model.PostalCode);
+                    }
+
+                    parameters.Add(new SqlParameter
+                    {
+                        DbType = DbType.Guid,
+                        Direction = ParameterDirection.Output,
+                        ParameterName = "@Id"
+                    });
+                },
+                  returnParameters: delegate (SqlParameterCollection parameters)
+                  {
+                      createId = Guid.Parse(parameters["@Id"].Value.ToString());
+                  }
+                );
 
             return createId;
-
         }
 
         public void Update(AddressUpdateRequest model)
         {
 
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                using (SqlCommand cmd = new SqlCommand())
+            DataProvider.ExecuteNonQuery(GetConnection, "dbo.Addresses_Update",
+                inputParamMapper: delegate (SqlParameterCollection parameters)
                 {
-                    cmd.CommandText = "dbo.Addresses_Update";
-                    cmd.CommandType = CommandType.StoredProcedure;
 
-                    cmd.Parameters.AddWithValue("@Id", model.Id);
-                    cmd.Parameters.AddWithValue("@UserId", model.UserId);
-                    cmd.Parameters.AddWithValue("@Name", model.Name);
-                    cmd.Parameters.AddWithValue("@Street", model.Street);
-                    cmd.Parameters.AddWithValue("@Street2", model.Street2);
-                    cmd.Parameters.AddWithValue("@City", model.City);
-                    cmd.Parameters.AddWithValue("@State", model.State);
-                    cmd.Parameters.AddWithValue("@PostalCode", model.PostalCode);
+                    parameters.AddWithValue("@Id", model.Id);
+                    parameters.AddWithValue("@UserId", model.UserId);
+                    parameters.AddWithValue("@Name", model.Name);
 
-                    cmd.Connection = conn;
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-            }
+                    if (model.Street == null)
+                    {
+                        parameters.AddWithValue("@Street", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@Street", model.Street);
+                    }
+
+                    if (model.Street2 == null)
+                    {
+                        parameters.AddWithValue("@Street2", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@Street2", model.Street2);
+                    }
+
+                    if (model.City == null)
+                    {
+                        parameters.AddWithValue("@City", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@City", model.City);
+                    }
+
+                    if (model.State == null)
+                    {
+                        parameters.AddWithValue("@State", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@State", model.State);
+                    }
+
+                    if (model.PostalCode == null)
+                    {
+                        parameters.AddWithValue("@PostalCode", DBNull.Value);
+                    }
+                    else
+                    {
+                        parameters.AddWithValue("@PostalCode", model.PostalCode);
+                    }
+
+                });
         }
 
         public List<Address> Get(int userId)
         {
             List<Address> list = null;
 
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
+            DataProvider.ExecuteCmd(GetConnection, "dbo.Addresses_Select"
+            , inputParamMapper: delegate (SqlParameterCollection parameters)
             {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.CommandText = "dbo.Addresses_Select";
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-
-                    cmd.Connection = conn;
-                    conn.Open();
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                                if (list == null)
-                                {
-                                    list = new List<Address>();
-                                }
-
-                                Address a = new Address();
-                                int startingIndex = 0;
-
-                                a.Id = reader.GetGuid(startingIndex++);
-                                a.UserId = reader.GetInt32(startingIndex++);
-                                a.Name = reader.GetString(startingIndex++);
-                                a.Street = reader.GetString(startingIndex++);
-                                a.Street2 = reader.GetString(startingIndex++);
-                                a.City = reader.GetString(startingIndex++);
-                                a.State = reader.GetString(startingIndex++);
-                                a.PostalCode = reader.GetString(startingIndex++);
-                                a.CreationDateTime = reader.GetDateTime(startingIndex++);
-
-                                list.Add(a);
-                            }
-                        }
-                    }
-                }
+                parameters.AddWithValue("@UserId", userId);
             }
+             , map: delegate (IDataReader reader, short set)
+             {
+                 Address address = MapAddress(reader);
+
+                 if (list == null)
+                 {
+                     list = new List<Address>();
+                 }
+
+                 list.Add(address);
+             }
+             );
 
             return list;
+
         }
 
         public Address Get(int userId, Guid id)
         {
-            Address a = null;
+            Address address = null;
 
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+            DataProvider.ExecuteCmd(GetConnection, "dbo.Addresses_SelectById",
+               inputParamMapper: delegate (SqlParameterCollection parameters)
+               {
+                   parameters.AddWithValue("@UserId", userId);
+                   parameters.AddWithValue("@Id", id);
+               }
+               , map: delegate (IDataReader reader, short set)
+               {
+                   address = MapAddress(reader);
+               });
 
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                using (SqlCommand cmd = new SqlCommand())
-                {
-                    cmd.CommandText = "dbo.Addresses_SelectById";
-                    cmd.CommandType = CommandType.StoredProcedure;
-
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-
-
-                    cmd.Connection = conn;
-                    conn.Open();
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.HasRows)
-                        {
-                            while (reader.Read())
-                            {
-                               if (a == null)
-                                {
-                                    a = new Address();
-                                }
-                                
-                                int startingIndex = 0;
-
-                                a.Id = reader.GetGuid(startingIndex++);
-                                a.UserId = reader.GetInt32(startingIndex++);
-                                a.Name = reader.GetString(startingIndex++);
-                                a.Street = reader.GetString(startingIndex++);
-                                a.Street2 = reader.GetString(startingIndex++);
-                                a.City = reader.GetString(startingIndex++);
-                                a.State = reader.GetString(startingIndex++);
-                                a.PostalCode = reader.GetString(startingIndex++);
-                                a.CreationDateTime = reader.GetDateTime(startingIndex++);
-                              
-                            }
-                        }
-                    }
-                }
-            }
-            return a;     
+            return address;
         }
 
         public void Delete(int userId, Guid id)
         {
-            string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                using (SqlCommand cmd = new SqlCommand())
+            DataProvider.ExecuteNonQuery(GetConnection, "dbo.Addresses_Delete",
+                inputParamMapper: delegate (SqlParameterCollection parameters)
                 {
-                    cmd.CommandText = "dbo.Addresses_Delete";
-                    cmd.CommandType = CommandType.StoredProcedure;
+                    parameters.AddWithValue("@UserId", userId);
+                    parameters.AddWithValue("@Id", id);
+                });
 
-                    cmd.Parameters.AddWithValue("@Id", id);
-                    cmd.Parameters.AddWithValue("@UserId", userId);
-
-                    cmd.Connection = conn;
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                }
-            }
         }
 
     }
