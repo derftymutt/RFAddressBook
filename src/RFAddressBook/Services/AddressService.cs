@@ -7,13 +7,14 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using WikiDataProvider;
 
 namespace RFAddressBook.Services
 {
-    public class AddressService
+    public class AddressService : BaseService, IAddressService
     {
 
-        public static Guid Create(AddressCreateRequest model)
+        public Guid Create(AddressCreateRequest model)
         {
             Guid createId;
 
@@ -53,7 +54,7 @@ namespace RFAddressBook.Services
 
         }
 
-        public static void Update(AddressUpdateRequest model)
+        public void Update(AddressUpdateRequest model)
         {
 
             string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
@@ -81,7 +82,7 @@ namespace RFAddressBook.Services
             }
         }
 
-        public static List<Address> Get(int userId)
+        public List<Address> Get(int userId)
         {
             List<Address> list = null;
 
@@ -133,7 +134,7 @@ namespace RFAddressBook.Services
             return list;
         }
 
-        public static Address Get(int userId, Guid id)
+        public Address Get(int userId, Guid id)
         {
             Address a = null;
 
@@ -184,7 +185,7 @@ namespace RFAddressBook.Services
             return a;     
         }
 
-        public static void Delete(int userId, Guid id)
+        public void Delete(int userId, Guid id)
         {
             string connStr = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 

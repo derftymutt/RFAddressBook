@@ -11,10 +11,18 @@ using System.Web.Http;
 
 namespace RFAddressBook.Controllers.ApiControllers
 {
-    [RoutePrefix("api/addresses")]
+    [RoutePrefix("api/users")]
     public class AddressesApiController : ApiController
     {
-        [Route("{userId:int}")]
+
+        private IAddressService _addressService;
+
+        public AddressesApiController (IAddressService addressService)
+        {
+            _addressService = addressService;
+        }
+
+        [Route("{userId:int}/addresses")]
         [HttpPost]
         public HttpResponseMessage Create(AddressCreateRequest model, int userId)
         {
@@ -22,55 +30,56 @@ namespace RFAddressBook.Controllers.ApiControllers
 
             //model.userId == userId(param) error check
 
-            Guid id = AddressService.Create(model);
+            Guid id = _addressService.Create(model);
             ItemResponse<Guid> responseData = new ItemResponse<Guid>();
             responseData.Item = id;
 
             return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId:int}/{id}")]
+        [Route("{userId:int}/addresses/{id:guid}")]
         [HttpPut]
         public HttpResponseMessage Edit(AddressUpdateRequest model, int userId, Guid id)
         {
             //check to verify that model.userid and model.id = userid and id
 
-            AddressService.Update(model);
-            ItemResponse<int> responseData = new ItemResponse<int>();
+            _addressService.Update(model);
+            SuccessResponse responseData = new SuccessResponse();
 
             return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId:int}")]
+        [Route("{userId:int}/addresses")]
         [HttpGet]
-        public HttpResponseMessage Get(Address model, int userId)
+        public HttpResponseMessage Get(int userId)
         {
             //check if model is null
 
             //check if model.userId == userId..?
 
             ItemsResponse<Address> responseData = new ItemsResponse<Address>();
-            responseData.Items = AddressService.Get(userId);
+            responseData.Items = _addressService.Get(userId);
 
             return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId:int}/{id}")]
+        [Route("{userId:int}/addresses/{id:guid}")]
         [HttpGet]
-        public HttpResponseMessage Get(Address model, int userId, Guid id)
+        public HttpResponseMessage Get(int userId, Guid id)
         {
             ItemResponse<Address> responseData = new ItemResponse<Address>();
-            responseData.Item = AddressService.Get(userId, id);
+            responseData.Item = _addressService.Get(userId, id);
 
             return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId:int}/{id}")]
+        [Route("{userId:int}/addresses/{id:guid}")]
         [HttpDelete]
         public HttpResponseMessage Delete(int userId, Guid id)
         {
-            AddressService.Delete(userId, id);
-            ItemResponse<int> responseData = new ItemResponse<int>();
+            _addressService.Delete(userId, id);
+
+            SuccessResponse responseData = new SuccessResponse();
 
             return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
