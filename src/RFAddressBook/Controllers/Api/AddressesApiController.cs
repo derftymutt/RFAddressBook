@@ -1,4 +1,8 @@
-﻿using System;
+﻿using RFAddressBook.Domain;
+using RFAddressBook.Models.Requests;
+using RFAddressBook.Models.Responses;
+using RFAddressBook.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -10,39 +14,65 @@ namespace RFAddressBook.Controllers.ApiControllers
     [RoutePrefix("api/addresses")]
     public class AddressesApiController : ApiController
     {
-        [Route("{userId}")]
+        [Route("{userId:int}")]
         [HttpPost]
-        public HttpResponseMessage Create(string userId)
+        public HttpResponseMessage Create(AddressCreateRequest model, int userId)
         {
-            return null;
+            //model error check 
+
+            //model.userId == userId(param) error check
+
+            Guid id = AddressService.Create(model);
+            ItemResponse<Guid> responseData = new ItemResponse<Guid>();
+            responseData.Item = id;
+
+            return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId}/{int:id}")]
+        [Route("{userId:int}/{id}")]
         [HttpPut]
-        public HttpResponseMessage Edit(string userId, int id)
+        public HttpResponseMessage Edit(AddressUpdateRequest model, int userId, Guid id)
         {
-            return null;
+            //check to verify that model.userid and model.id = userid and id
+
+            AddressService.Update(model);
+            ItemResponse<int> responseData = new ItemResponse<int>();
+
+            return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId}")]
+        [Route("{userId:int}")]
         [HttpGet]
-        public HttpResponseMessage Get(string userId)
+        public HttpResponseMessage Get(Address model, int userId)
         {
-            return null;
+            //check if model is null
+
+            //check if model.userId == userId..?
+
+            ItemsResponse<Address> responseData = new ItemsResponse<Address>();
+            responseData.Items = AddressService.Get(userId);
+
+            return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId}/{int:id}")]
+        [Route("{userId:int}/{id}")]
         [HttpGet]
-        public HttpResponseMessage Get(string userId, int id)
+        public HttpResponseMessage Get(Address model, int userId, Guid id)
         {
-            return null;
+            ItemResponse<Address> responseData = new ItemResponse<Address>();
+            responseData.Item = AddressService.Get(userId, id);
+
+            return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
 
-        [Route("{userId}/{int:id}")]
+        [Route("{userId:int}/{id}")]
         [HttpDelete]
-        public HttpResponseMessage Delete(string userId, int id)
+        public HttpResponseMessage Delete(int userId, Guid id)
         {
-            return null;
+            AddressService.Delete(userId, id);
+            ItemResponse<int> responseData = new ItemResponse<int>();
+
+            return Request.CreateResponse(HttpStatusCode.OK, responseData);
         }
     }
 }
