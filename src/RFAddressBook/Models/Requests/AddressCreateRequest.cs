@@ -7,7 +7,6 @@ using System.Web.Http.ModelBinding;
 
 namespace RFAddressBook.Models.Requests
 {
-   // [ModelBinder(typeof(CustomAddressModelBinder))]
     public class AddressCreateRequest
     {
 

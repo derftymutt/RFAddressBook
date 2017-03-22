@@ -13,12 +13,11 @@ using System.Web.Http;
 namespace RFAddressBook.Controllers.ApiControllers
 {
     [RoutePrefix("api/users")]
-    public class AddressesApiController : BaseApiController
+    public class UserAddressesApiController : BaseApiController
     { 
-
         private IAddressService _addressService;
 
-        public AddressesApiController (IAddressService addressService)
+        public UserAddressesApiController (IAddressService addressService)
         {
             _addressService = addressService;
         }
@@ -35,7 +34,7 @@ namespace RFAddressBook.Controllers.ApiControllers
             if (userId != model.UserId)
             {
                 ErrorResponse error = new ErrorResponse("The userId in the route and request do not match");
-                return Request.CreateResponse(HttpStatusCode.Conflict, error);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, error);
             }
 
             Guid id = _addressService.Create(model);
@@ -56,13 +55,13 @@ namespace RFAddressBook.Controllers.ApiControllers
             if(userId != model.UserId)
             {
                 ErrorResponse error = new ErrorResponse("The userId in the route and request do not match");
-                return Request.CreateResponse(HttpStatusCode.Conflict, error);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, error);
             }
 
             if (id != model.Id)
             {
                 ErrorResponse error = new ErrorResponse("The Id in the route and request do not match");
-                return Request.CreateResponse(HttpStatusCode.Conflict, error);
+                return Request.CreateResponse(HttpStatusCode.BadRequest, error);
             }
 
             _addressService.Update(model);
